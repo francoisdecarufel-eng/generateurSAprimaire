@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur IA - Situations d'Application (Mathématiques Primaire)</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary: #059669;
+            --secondary-hover: #047857;
+            --danger: #DC2626; 
+            --bg-color: #F3F4F6;
+            --panel-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border-color: #D1D5DB;
+            --blue-concept: #2563EB;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 1.3em;
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-grid.triple {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        @media (max-width: 800px) {
+            .form-grid, .form-grid.triple { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width { grid-column: 1 / -1; }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input[type="text"], select, textarea {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+            background-color: #F9FAFB;
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Styles pour les concepts */
+        .legend-box {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        #concepts-container {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 15px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            background: #F8FAFC;
+            padding: 15px;
+        }
+
+        .concept-category {
+            margin-bottom: 25px;
+        }
+        
+        .concept-category h4 { 
+            margin: 0 0 15px 0; 
+            color: #1E293B; 
+            font-size: 1.1em;
+            border-bottom: 1px solid #CBD5E1;
+            padding-bottom: 5px;
+        }
+        
+        .concept-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 12px;
+        }
+        
+        .concept-item {
+            display: flex;
+            align-items: flex-start;
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #E2E8F0;
+            font-size: 0.95em;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .concept-item:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .concept-item input { 
+            margin-top: 4px; 
+            margin-right: 12px; 
+            transform: scale(1.1);
+        }
+        
+        /* Classes dynamiques appliquées par JS selon la logique demandée */
+        .concept-blue { color: var(--blue-concept); border-left: 4px solid var(--blue-concept); font-weight: bold; }
+        .concept-bold { font-weight: bold; color: #000; border-left: 4px solid #475569; }
+        .concept-faded { opacity: 0.55; filter: grayscale(100%); border-left: 4px solid #CBD5E1; }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        /* Boutons */
+        .actions-panel {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-generate { background-color: var(--primary); }
+        .btn-generate:hover { background-color: var(--primary-hover); }
+        .btn-copy { background-color: var(--secondary); }
+        .btn-copy:hover { background-color: var(--secondary-hover); }
+        .btn-reset { background-color: transparent; color: var(--danger); border: 2px solid var(--danger); }
+        .btn-reset:hover { background-color: var(--danger); color: white; }
+
+        /* Résultat */
+        .output-panel {
+            background-color: #111827;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .output-panel label { color: #E5E7EB; }
+        textarea#resultat-prompt {
+            width: 100%;
+            height: 600px;
+            background-color: #1F2937;
+            color: #10B981;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Générateur de Situations d'Application</h1>
+        <p>Paramétrez vos choix pour générer la requête IA parfaite (PFEQ, SVG, Word).</p>
+    </div>
+
+    <!-- OBJECTIF ET TYPE -->
+    <div class="panel">
+        <h2 class="panel-title">🎯 1. Objectif de la création</h2>
+        <div class="form-grid triple">
+            <div class="form-group">
+                <label>Que souhaitez-vous faire ?</label>
+                <select id="objectif" onchange="toggleDiff()">
+                    <option value="" disabled selected>-- Choisir un objectif --</option>
+                    <option value="Créer une nouvelle situation d’application complète">Créer une nouvelle situation (sans modèle)</option>
+                    <option value="Adapter ou différencier une situation d’application existante">Adapter/différencier un problème existant</option>
+                    <option value="Créer une situation d’application clé en main à partir d’un exemple">Créer à partir d'un exemple existant</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Type de tâche (Réponse attendue)</label>
+                <select id="type-tache">
+                    <option value="" disabled selected>-- Choisir un type --</option>
+                    <option value="Action">Action (Résoudre, trouver un résultat)</option>
+                    <option value="Validation">Validation (Vrai/Faux, Oui/Non avec justification)</option>
+                </select>
+            </div>
+            <div class="form-group hidden" id="diff-group">
+                <label>Options de différenciation</label>
+                <select id="differenciation">
+                    <option value="">-- Sélectionner une adaptation --</option>
+                    <option value="Raccourcir le texte">Raccourcir le texte</option>
+                    <option value="Allonger le texte (mise en situation)">Allonger le texte</option>
+                    <option value="Simplifier le vocabulaire">Simplifier le vocabulaire</option>
+                    <option value="Présenter les informations sous la forme d'une liste à puces">Format liste à puces</option>
+                    <option value="Diminuer le nombre d'actions dans la tâche">Diminuer les actions</option>
+                    <option value="Diminuer le nombre de données et de contraintes">Diminuer données/contraintes</option>
+                    <option value="Diminuer le nombre d’étapes dans le problème">Diminuer les étapes</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- PÉDAGOGIE & CONCEPTS -->
+    <div class="panel">
+        <h2 class="panel-title">📚 2. Paramètres Pédagogiques (PFEQ)</h2>
+        <div class="form-grid triple" style="margin-bottom:20px;">
+            <div class="form-group">
+                <label>Cycle</label>
+                <select id="cycle" onchange="updateAnnees()">
+                    <option value="" disabled selected>-- Choisir le cycle --</option>
+                    <option value="1">1er cycle</option>
+                    <option value="2">2e cycle</option>
+                    <option value="3">3e cycle</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Année de finalisation</label>
+                <select id="annee" onchange="updateConceptsStyling()" disabled>
+                    <option value="">-- Choisir d'abord un cycle --</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group full-width">
+            <label>Concepts mathématiques à intégrer</label>
+            <div class="legend-box" id="legend-box">
+                <em>Veuillez sélectionner une année pour afficher la légende des couleurs.</em>
+            </div>
+            
+            <div id="concepts-container">
+                <!-- Les concepts seront injectés ici par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTEXTE -->
+    <div class="panel">
+        <h2 class="panel-title">🌍 3. Contexte et Actions</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Lieu de l'action</label>
+                <select id="lieu" onchange="toggleAutre('lieu')">
+                    <option value="" disabled selected>-- Choisir un lieu --</option>
+                    <option value="À l’école">À l’école</option>
+                    <option value="Dans l’école">Dans l’école</option>
+                    <option value="Cour de récréation">Cour de récréation</option>
+                    <option value="Gymnase">Gymnase</option>
+                    <option value="Dans la classe">Dans la classe</option>
+                    <option value="Cafétéria">Cafétéria</option>
+                    <option value="À l’extérieur">À l’extérieur</option>
+                    <option value="Sortie au zoo">Sortie au zoo</option>
+                    <option value="Parc d’attraction">Parc d’attraction</option>
+                    <option value="Magasinage/boutique">Magasinage/boutique</option>
+                    <option value="Épicerie">Épicerie</option>
+                    <option value="Bibliothèque">Bibliothèque</option>
+                    <option value="Autre">Autre (préciser)</option>
+                </select>
+                <input type="text" id="lieu-autre" class="hidden" placeholder="Précisez le lieu..." style="margin-top:10px;">
+            </div>
+
+            <div class="form-group">
+                <label>Thème</label>
+                <select id="theme" onchange="toggleAutre('theme')">
+                    <option value="" disabled selected>-- Choisir un thème --</option>
+                    <option value="Une visite de zoo">Une visite de zoo</option>
+                    <option value="Le Marché">Le Marché</option>
+                    <option value="La ferme">La ferme</option>
+                    <option value="Une fête d’anniversaire">Une fête d’anniversaire</option>
+                    <option value="Un voyage en train">Un voyage en train</option>
+                    <option value="La météo">La météo</option>
+                    <option value="Le jardinage">Le jardinage</option>
+                    <option value="Un pique-nique">Un pique-nique</option>
+                    <option value="Une course à vélo">Une course à vélo</option>
+                    <option value="Une journée au parc">Une journée au parc</option>
+                    <option value="La cuisine">La cuisine</option>
+                    <option value="La collecte de déchets">La collecte de déchets</option>
+                    <option value="Les animaux">Les animaux</option>
+                    <option value="Un carnaval">Un carnaval</option>
+                    <option value="Une chasse au trésor">Une chasse au trésor</option>
+                    <option value="La construction d’une cabane">La construction d’une cabane</option>
+                    <option value="Le supermarché">Le supermarché</option>
+                    <option value="L’exploration spatiale">L’exploration spatiale</option>
+                    <option value="Les saisons">Les saisons</option>
+                    <option value="La nature">La nature</option>
+                    <option value="Le sport">Le sport</option>
+                    <option value="Le théâtre">Le théâtre</option>
+                    <option value="Un spectacle de classe">Un spectacle de classe</option>
+                    <option value="Magasin de jouets">Magasin de jouets</option>
+                    <option value="Trajet pour se rendre à l’école">Trajet pour se rendre à l’école</option>
+                    <option value="Atelier d’arts plastiques">Atelier d’arts plastiques</option>
+                    <option value="Alimentations">Alimentations</option>
+                    <option value="Camping">Camping</option>
+                    <option value="L’automne">L’automne</option>
+                    <option value="L’hiver">L’hiver</option>
+                    <option value="Noël">Noël</option>
+                    <option value="Pâques">Pâques</option>
+                    <option value="La Saint-Valentin">La Saint-Valentin</option>
+                    <option value="La saison estivale">La saison estivale</option>
+                    <option value="Le printemps">Le printemps</option>
+                    <option value="l’Halloween">l’Halloween</option>
+                    <option value="La cabane à sucre">La cabane à sucre</option>
+                    <option value="Autre">Autre (préciser)</option>
+                </select>
+                <input type="text" id="theme-autre" class="hidden" placeholder="Précisez le thème..." style="margin-top:10px;">
+            </div>
+
+            <div class="form-group">
+                <label>Nombre d'actions importantes</label>
+                <select id="nb-actions">
+                    <option value="" disabled selected>-- Choisir le nombre d'actions --</option>
+                    <option value="2">2 actions importantes</option>
+                    <option value="3">3 actions importantes</option>
+                    <option value="4">4 actions importantes</option>
+                    <option value="5">5 actions importantes</option>
+                    <option value="6">6 actions importantes</option>
+                    <option value="7">7 actions importantes</option>
+                    <option value="Plus de 7">Plus de 7 actions importantes</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUPPORTS VISUELS -->
+    <div class="panel">
+        <h2 class="panel-title">📊 4. Supports Visuels Exigés (SVG)</h2>
+        <div class="checkbox-grid">
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Diagramme à bandes"> Diagramme à bandes</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Diagramme à ligne brisée"> Diagramme à ligne brisée</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Diagramme à pictogrammes"> Diagramme à pictogrammes</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Diagramme circulaire"> Diagramme circulaire</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Dessins de polygones"> Dessins de polygones</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Représentation des nombres (matériel)"> Matériel de manipulation</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Représentation de fractions"> Représentation de fractions</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Tableau de données"> Tableau de données</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Tableau de numération"> Tableau de numération</label>
+            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Plan cartésien"> Plan cartésien</label>
+        </div>
+    </div>
+
+    <!-- BOUTONS -->
+    <div class="actions-panel">
+        <button class="btn-generate" onclick="genererPrompt()">Générer la requête IA</button>
+        <button class="btn-copy" onclick="copierPrompt()">Copier la requête</button>
+        <button class="btn-reset" onclick="effacerChoix()">Effacer les choix</button>
+    </div>
+
+    <!-- RÉSULTAT -->
+    <div class="output-panel" id="zone-resultat">
+        <label>🤖 Requête IA optimisée :</label>
+        <textarea id="resultat-prompt" readonly placeholder="La requête apparaîtra ici..."></textarea>
+    </div>
+</div>
+
+<script>
+    // Base de données rigoureusement mappée avec les cycles d'activation et l'année finale
+    const baseConcepts = [
+        // --- A. ARITHMÉTIQUE ---
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Compter ou réciter la comptine des nombres par ordre croissant (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Compter ou réciter la comptine par ordre décroissant (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Compter par bonds (1er et 2e cycles)", cycles: [1, 2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Dénombrer des collections réelles ou dessinées (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Lire et écrire tout nombre naturel (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Représenter des nombres naturels : accent mis sur le groupement (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Représenter des nombres naturels : accent mis sur l’échange (base 10) (1er et 2e cycles)", cycles: [1, 2], finalYear: 3 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Représenter des nombres naturels : accent mis sur la valeur de position (1er et 2e cycles)", cycles: [1, 2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Représenter la puissance d’un nombre naturel (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Composer et décomposer un nombre naturel (1er et 2e cycles)", cycles: [1, 2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Reconnaître des expressions équivalentes (ex: $52 = 40 + 12$) (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Comparer entre eux des nombres naturels (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Ordonner des nombres naturels (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Décrire des régularités numériques (ex: pairs/impairs, divisibilité) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Situer des nombres naturels sur un axe (droite numérique) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Identifier les propriétés des nombres naturels (pair, impair, premier, composé) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Classifier des nombres naturels de diverses façons (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Faire une approximation d’une collection (estimer) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        
+        // --- Fractions ---
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Reconnaître des fractions provenant de la vie courante (2e cycle)", cycles: [2], finalYear: 3 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Représenter une fraction de différentes façons (partie d'un tout/collection) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Associer une fraction à une partie d’un tout ou d'une collection (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Reconnaître les différents sens de la fraction (partage, division, rapport) (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Distinguer le rôle du numérateur et du dénominateur (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Lire et écrire une fraction (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Comparer une fraction à 0, à 1/2 ou à 1 (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Vérifier l’équivalence de deux fractions (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Associer un nombre décimal ou un pourcentage à une fraction (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Ordonner des fractions (dénominateurs identiques ou multiples) (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Situer des fractions sur un axe (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "Reconnaître des fractions irréductibles (3e cycle)", cycles: [3], finalYear: 6 },
+
+        // --- Nombres décimaux ---
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Représenter des nombres décimaux (matériel concret ou dessins) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Reconnaître des représentations équivalentes de nombres décimaux (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Lire et écrire des nombres écrits en notation décimale (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Reconnaître le rôle de la virgule et la valeur de position (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Composer et décomposer un nombre décimal (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Reconnaître des expressions numériques équivalentes (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Situer des nombres décimaux sur un axe (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Comparer entre eux des nombres décimaux (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Faire une approximation (arrondir, tronquer) (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Ordonner des nombres décimaux (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres décimaux", text: "Associer une fraction ou un pourcentage à un nombre décimal (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+
+        // --- Nombres entiers ---
+        { cat: "A. ARITHMÉTIQUE - Nombres entiers", text: "Représenter des nombres entiers (3e cycle)", cycles: [3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres entiers", text: "Lire et écrire des nombres entiers (3e cycle)", cycles: [3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Nombres entiers", text: "Situer des nombres entiers sur un axe (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Nombres entiers", text: "Comparer et ordonner des nombres entiers (3e cycle)", cycles: [3], finalYear: 6 },
+
+        // --- Opérations ---
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Reconnaître l’opération (addition, soustraction, mult., div.) à effectuer (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Traduire une situation d'addition ou de soustraction (ajout, retrait, réunion, comparaison) (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Traduire une situation par une composition de transformations (ex: j'ai gagné 2, puis perdu 3) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Traduire une situation de multiplication ou division (disposition rectangulaire, partage) (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Établir la relation d’égalité entre des expressions numériques (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Déterminer des équivalences numériques (commutativité, associativité) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Déterminer des équivalences (distributivité) (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Traduire une situation par une suite d’opérations (chaînes d'opérations) (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul mental : Tables d'addition (0+0 à 10+10) et soustractions correspondantes (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul mental : Tables de multiplication (0x0 à 10x10) et divisions correspondantes (2e et 3e cycles)", cycles: [2, 3], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : Addition et soustraction de nombres naturels (1er et 2e cycles)", cycles: [1, 2], finalYear: 3 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : Multiplication de nombres naturels par un chiffre (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : Multiplication de nombres naturels par plusieurs chiffres (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : division de nombres naturels par un diviseur à un chiffre (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : division de nombres naturels par un diviseur à plusieurs chiffres (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : Addition et soustraction de nombres décimaux (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "A. ARITHMÉTIQUE - Opérations", text: "Calcul écrit : Multiplication et division de nombres décimaux (3e cycle)", cycles: [3], finalYear: 6 },
+
+        // --- B. GÉOMÉTRIE ---
+        { cat: "B. GÉOMÉTRIE", text: "Se repérer et repérer des objets dans l’espace (relations spatiales) (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "B. GÉOMÉTRIE", text: "Effectuer des activités de repérage sur un plan, une carte ou une grille (1er et 2e cycles)", cycles: [1, 2], finalYear: 3 },
+        { cat: "B. GÉOMÉTRIE", text: "Se repérer dans le plan cartésien (1er quadrant) (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "B. GÉOMÉTRIE", text: "Se repérer dans le plan cartésien (4 quadrants) (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "B. GÉOMÉTRIE", text: "Comparer des objets de l'environnement à des solides (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "B. GÉOMÉTRIE", text: "Identifier des solides (boule, cube, cylindre, cône, prisme, pyramide) (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "B. GÉOMÉTRIE", text: "Décrire des solides (faces, sommets, arêtes) (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "B. GÉOMÉTRIE", text: "Comparer et construire des solides (1er et 2e cycles)", cycles: [1, 2], finalYear: 3 },
+        { cat: "B. GÉOMÉTRIE", text: "Identifier le développement de solides (prisme et pyramide) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "B. GÉOMÉTRIE", text: "Associer un solide à son développement (et vice-versa) (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "B. GÉOMÉTRIE", text: "Tester la relation d'Euler (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "B. GÉOMÉTRIE", text: "Identifier des figures planes (carré, rectangle, triangle, cercle, losange) (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "B. GÉOMÉTRIE", text: "Décrire des figures planes (côtés, sommets, angles) (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "B. GÉOMÉTRIE", text: "Classifier les polygones (convexes, non convexes) (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "B. GÉOMÉTRIE", text: "Classifier les quadrilatères (trapèze, parallélogramme, rectangle, losange, carré) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "B. GÉOMÉTRIE", text: "Classifier les triangles (scalène, isocèle, équilatéral, rectangle) (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "B. GÉOMÉTRIE", text: "Décrire le cercle (rayon, diamètre, circonférence, angle au centre) (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "B. GÉOMÉTRIE", text: "Identifier des régularités dans une frise ou un dallage (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "B. GÉOMÉTRIE", text: "Poursuivre une frise ou un dallage (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "B. GÉOMÉTRIE", text: "Produire des frises et des dallages (réflexion) (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "B. GÉOMÉTRIE", text: "Produire des frises et des dallages (translation, rotation) (3e cycle)", cycles: [3], finalYear: 6 },
+
+        // --- C. MESURE ---
+        { cat: "C. MESURE", text: "Estimer et mesurer avec des unités non conventionnelles (1er cycle)", cycles: [1], finalYear: 1 },
+        { cat: "C. MESURE", text: "Estimer et mesurer avec des unités conventionnelles (m, dm, cm, mm, km) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        { cat: "C. MESURE", text: "Établir des relations entre les unités de mesure de longueur (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Calculer le périmètre de figures planes (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Estimer et mesurer la surface avec des unités non conventionnelles (2e cycle)", cycles: [2], finalYear: 3 },
+        { cat: "C. MESURE", text: "Estimer et mesurer la surface avec des unités conventionnelles (m2, dm2, cm2) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "C. MESURE", text: "Calculer l’aire de rectangles, carrés, triangles (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Estimer et mesurer le volume avec des unités non conventionnelles (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "C. MESURE", text: "Estimer et mesurer le volume avec des unités conventionnelles (m3, dm3, cm3) (3e cycle)", cycles: [3], finalYear: 5 },
+        { cat: "C. MESURE", text: "Calculer le volume de prismes droits (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Comparer des angles (droit, aigu, obtus) (2e cycle)", cycles: [2], finalYear: 4 },
+        { cat: "C. MESURE", text: "Estimer et mesurer des angles en degrés (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Estimer et mesurer la capacity (L, mL) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "C. MESURE", text: "Estimer et mesurer la masse (kg, g) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "C. MESURE", text: "Établir des relations entre les unités de mesure (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Estimer et mesurer le temps (unités conventionnelles) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+        { cat: "C. MESURE", text: "Établir des relations entre les unités de temps (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "C. MESURE", text: "Estimer et mesurer la température (°C) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
+
+        // --- D. STATISTIQUE ET PROBABILITÉ ---
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Formuler des questions d’enquête (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 3 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Collecter, décrire et organiser des données (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 4 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Interpréter des données à l'aide d'un tableau, pictogramme ou diagramme à bandes (1er et 2e cycles)", cycles: [1, 2], finalYear: 3 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Interpréter des données à l'aide d'un diagramme à ligne brisée (2e et 3e cycles)", cycles: [2, 3], finalYear: 6 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Interpréter des données à l'aide d'un diagramme circulaire (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Calculer et interpréter la moyenne arithmétique (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Expérimenter des activités liées au hasard (prédictions qualitatives) (1er cycle)", cycles: [1], finalYear: 2 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Dénombrer les résultats possibles d’une expérience aléatoire (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Calculer la probabilité d’un événement (prédictions quantitatives) (3e cycle)", cycles: [3], finalYear: 6 },
+        { cat: "D. STATISTIQUE ET PROBABILITÉ", text: "Comparer des résultats théoriques et expérimentaux (3e cycle)", cycles: [3], finalYear: 6 }
+    ];
+
+    // Initialisation
+    window.onload = function() {
+        genererHTMLConcepts();
+    };
+
+    function genererHTMLConcepts() {
+        const container = document.getElementById('concepts-container');
+        let currentCat = "";
+        let html = "";
+
+        baseConcepts.forEach((c) => {
+            if (c.cat !== currentCat) {
+                if (currentCat !== "") html += `</div></div>`;
+                html += `<div class="concept-category" data-cat="${c.cat}">
+                            <h4>${c.cat}</h4>
+                            <div class="concept-list">`;
+                currentCat = c.cat;
+            }
+            html += `<label class="concept-item hidden" data-year="${c.finalYear}" data-cycles="${JSON.stringify(c.cycles)}">
+                        <input type="checkbox" value="${c.text}">
+                        <span>${c.text}</span>
+                     </label>`;
+        });
+        if(currentCat !== "") html += `</div></div>`;
+        container.innerHTML = html;
+    }
+
+    function toggleDiff() {
+        const obj = document.getElementById('objectif').value;
+        const diffGroup = document.getElementById('diff-group');
+        if (obj && (obj.includes('Adapter') || obj.includes('partir d’un exemple'))) {
+            diffGroup.classList.remove('hidden');
+        } else {
+            diffGroup.classList.add('hidden');
+            document.getElementById('differenciation').value = "";
+        }
+    }
+
+    function toggleAutre(id) {
+        const select = document.getElementById(id);
+        const input = document.getElementById(id + '-autre');
+        if (select.value === 'Autre') {
+            input.classList.remove('hidden');
+        } else {
+            input.classList.add('hidden');
+        }
+    }
+
+    function updateAnnees() {
+        const cycle = document.getElementById('cycle').value;
+        const anneeSelect = document.getElementById('annee');
+        anneeSelect.innerHTML = "";
+        anneeSelect.disabled = false;
+
+        if (cycle === "1") {
+            anneeSelect.add(new Option("1re année", "1"));
+            anneeSelect.add(new Option("2e année", "2"));
+        } else if (cycle === "2") {
+            anneeSelect.add(new Option("3e année", "3"));
+            anneeSelect.add(new Option("4e année", "4"));
+        } else if (cycle === "3") {
+            anneeSelect.add(new Option("5e année", "5"));
+            anneeSelect.add(new Option("6e année", "6"));
+        } else {
+            anneeSelect.add(new Option("-- Choisir d'abord un cycle --", ""));
+            anneeSelect.disabled = true;
+        }
+        updateConceptsStyling();
+    }
+
+    function updateConceptsStyling() {
+        const cycleStr = document.getElementById('cycle').value;
+        if (!cycleStr) return; // Sécurité si aucun cycle n'est choisi (suite à effacement)
+
+        const cycleChoisi = parseInt(cycleStr);
+        const anneeChoisie = parseInt(document.getElementById('annee').value); 
+        
+        let yearOther;
+        if (cycleChoisi === 1) yearOther = (anneeChoisie === 1) ? 2 : 1;
+        if (cycleChoisi === 2) yearOther = (anneeChoisie === 3) ? 4 : 3;
+        if (cycleChoisi === 3) yearOther = (anneeChoisie === 5) ? 6 : 5;
+
+        // Mise à jour de la légende dynamique
+        const legend = document.getElementById('legend-box');
+        legend.innerHTML = `
+            <strong>Légende visuelle pour le cycle ${cycleChoisi} :</strong><br>
+            <span style="color:var(--blue-concept); font-weight:bold;">■ Bleu</span> : Concepts finalisés en ${anneeChoisie}e année.<br>
+            <span style="color:#000; font-weight:bold;">■ Noir gras</span> : Concepts finalisés en ${yearOther}e année.<br>
+            <span style="color:#666;">■ Gris pâle</span> : Concepts des cycles précédents (disponibles et moins foncés pour le réinvestissement).
+        `;
+
+        const labels = document.querySelectorAll('#concepts-container .concept-item');
+        
+        labels.forEach(label => {
+            const finalYear = parseInt(label.getAttribute('data-year'));
+            const activeCycles = JSON.parse(label.getAttribute('data-cycles'));
+            
+            // Réinitialisation des classes
+            label.classList.remove('concept-blue', 'concept-bold', 'concept-faded', 'hidden');
+            
+            if (activeCycles.includes(cycleChoisi)) {
+                // Le concept est actif dans le cycle actuellement sélectionné
+                if (finalYear === anneeChoisie) {
+                    // Finalisé dans l'année choisie (ex: bleu)
+                    label.classList.add('concept-blue');
+                } else if (Math.ceil(finalYear / 2) === cycleChoisi && finalYear !== anneeChoisie) {
+                    // Finalisé dans l'autre année du MÊME cycle (ex: gras)
+                    label.classList.add('concept-bold');
+                } else {
+                    // Concept actif dans ce cycle mais qui se finalise plus tard. Il apparaît simplement normal.
+                    // Aucune classe ajoutée, reste visible.
+                }
+            } else if (Math.max(...activeCycles) < cycleChoisi) {
+                // Le concept est terminé dans un cycle antérieur. On l'affiche moins foncé (faded).
+                label.classList.add('concept-faded');
+            } else {
+                // Concept strictement futur par rapport au cycle choisi
+                label.classList.add('hidden');
+                label.querySelector('input').checked = false; // Décoche si caché
+            }
+        });
+
+        // Cacher les catégories qui ne contiennent que des éléments cachés
+        document.querySelectorAll('.concept-category').forEach(cat => {
+            const visibleItems = cat.querySelectorAll('.concept-item:not(.hidden)');
+            cat.style.display = visibleItems.length === 0 ? 'none' : 'block';
+        });
+    }
+
+    function genererPrompt() {
+        // Collecte des données
+        const objectif = document.getElementById('objectif').value || "[Objectif non sélectionné]";
+        const diff = document.getElementById('differenciation').value;
+        const typeTache = document.getElementById('type-tache').value || "[Type non sélectionné]";
+        
+        const cycle = document.getElementById('cycle').value || "[Non spécifié]";
+        const anneeLabel = document.getElementById('annee').options[document.getElementById('annee').selectedIndex]?.text || "[Non spécifié]";
+        
+        const lieuSelect = document.getElementById('lieu').value;
+        const lieu = lieuSelect === 'Autre' ? document.getElementById('lieu-autre').value : (lieuSelect || "[Lieu non sélectionné]");
+        
+        const themeSelect = document.getElementById('theme').value;
+        const theme = themeSelect === 'Autre' ? document.getElementById('theme-autre').value : (themeSelect || "[Thème non sélectionné]");
+
+        const nbActions = document.getElementById('nb-actions').value || "[Non spécifié]";
+
+        // Collecte Concepts
+        const conceptsChecked = Array.from(document.querySelectorAll('#concepts-container input:checked')).map(cb => cb.value);
+        const conceptsTexte = conceptsChecked.length > 0 ? conceptsChecked.join('\n- ') : "[Aucun concept spécifique sélectionné]";
+
+        let contraintesConcepts = "Contrainte stricte : Enlever tous les concepts qui ne sont pas sélectionnés dans la section concepts à intégrer (ci-dessus)\n";
+        if (conceptsChecked.length > 0) {
+            contraintesConcepts += "(IMPORTANT : Tu dois intégrer STRICTEMENT et UNIQUEMENT ces concepts mathématiques dans la situation d’Application. De plus, il est impératif d'enlever la partie ta tâche consiste à... ou de donner une liste d'Action à poser. Cest à l'élève à déterminer par lui même les actions à poser. LEs actions à poser par l'élève doivent être clair par la forme (format et structure) que prend le problème. Il est strictement interdit que dans le résultat final, on voit une suite d'action (exemple action 1, action 2) Cest strictement interdit didentifier et de numéroter des actions. Il est strictement interdit également que dans la situation d'application, ce soit indiquer L'élève comprend qu'il... À la fin de la mise en situation et de la présentation des différents éléments mathématiques, il doit impérativement et simplement y avoir une question qui amènera l'élève à analyser, réfléchir et démontrer sa compréhension des concepts présents dans la situation d'application.)";
+        }
+
+        // Collecte Visuels
+        const visuelsChecked = Array.from(document.querySelectorAll('input[name="visuel"]:checked')).map(cb => cb.value);
+        const visuelsTexte = visuelsChecked.length > 0 ? visuelsChecked.join(', ') : "Aucun support visuel spécifique";
+
+        let contraintesVisuels = "Contrainte stricte : Enlever tous les supports visuels qui ne sont pas sélectionnés dans la section supports visuels à intégrer (ci-dessus)\n";
+        if (visuelsChecked.length > 0) {
+            contraintesVisuels += "(IMPORTANT : Tu dois intégrer STRICTEMENT et UNIQUEMENT ces supports visuels dans la situation d’Application.)";
+        }
+
+        // Règles de différenciation
+        let blocDiff = "";
+        if (objectif.includes("Adapter") || objectif.includes("exemple")) {
+            blocDiff = `
+Si "Adapter ou différencier une situation existante" est sélectionné :
+Remplace les concepts existants du modèle par ces nouveaux concepts tout en respectant scrupuleusement le schéma et la complexité de la structure du problème.
+Option de différenciation demandée : ${diff || "Aucune"}`;
+        }
+
+        // Règles réponse
+        let regleReponse = "";
+        if (typeTache === "Validation") {
+            regleReponse = `Le cahier de réponse DOIT être de type "Validation". L'élève doit avoir des cases à cocher (ex: "Oui" / "Non") suivies obligatoirement d'une zone "Justification : Parce que ____________________" pour expliquer son choix mathématique.`;
+        } else {
+            regleReponse = `Le cahier de réponse DOIT être de type "Action". L'élève doit trouver une solution concrète (ex: "Le code secret est : ___" ou un tableau final à compléter).`;
+        }
+
+        // --- GÉNÉRATION DU TEXTE MASSIF ---
+        const promptFinal = `CONSIGNE POUR L'IA :
+
+Agis comme un développeur et concepteur pédagogique expert en mathématiques pour le primaire. Ta mission est de créer une situation d’application, conforme aux standards pédagogiques du PFEQ et compatible avec Word.
+
+1️⃣ CONTEXTE ET RÔLE :
+Je suis un(e) Enseignant(e) du primaire. 
+- Niveau ciblé : ${cycle}e cycle du primaire (Année cible : ${anneeLabel}).
+- Objectif de la requête : ${objectif}
+- Type de tâche attendu : Situation d’application de type "${typeTache}".
+
+2️⃣ PARAMÈTRES PÉDAGOGIQUES ET CONCEPTS
+Concepts à intégrer strictement :
+- ${conceptsTexte}
+
+${contraintesConcepts}
+${blocDiff}
+
+3️⃣ LIEU ET THÈME
+- Lieu : ${lieu}
+- Thème : ${theme}
+
+4️⃣ ACTIONS ET MODÈLE DE RÉFÉRENCE
+- Nombre d'actions importantes à accomplir : ${nbActions} actions.
+- Règle : Chaque action d’une situation d’application ne dépend pas obligatoirement de la précédente.
+- [CONTRAINTE STRICTE ET ESSENTIELLE] : La question posée à la fin doit obligatoirement être en lien avec TOUTES les actions que l'élève doit poser. C'est-à-dire que toutes les actions que l'élève doit poser et toutes les données mathématiques fournies sont en lien direct avec la question finale et servent exclusivement à y répondre.
+- Exemple 1 : "Dans quelle salle la représentation du film que tu iras voir avec ta classe aura-t-elle lieu? Justifie ta réponse à l’aide d’arguments mathématiques rigoureux." -> Dans cette situation, si l'élève a à déterminer la salle, toutes les données mathématiques et actions mathématiques que l'élève devra réaliser serviront à répondre à cette même question.
+- Exemple 2 : "Quel est le code secret à 3 chiffres qui te permettra de gagner ta collation au cinéma?" -> Toutes les actions mènent inévitablement à la découverte de ce code.
+
+5️⃣ FORMAT DE RÉPONSE ET INTERDICTIONS
+- INTERDICTION FORMELLE : Ne jamais inclure de "Case ou zone réponse" ou de "Espace pour calculer" tout au long de la situation problème. Le problème doit être présenté purement.
+- À la fin du problème, il faut impérativement inclure un espace de réponses vide. L’IA doit déduire le format selon les actions.
+- ${regleReponse}
+- INTERDICTION DE CORRIGÉ : Ne pas générer de corrigé ou de réponse remplie. Les cases doivent être vierges.
+
+6️⃣ SUPPORTS VISUELS REQUIS
+Créer les éléments suivants dans la Zone 2 : ${visuelsTexte}
+
+${contraintesVisuels}
+Contrainte stricte : Exclure systématiquement tous les supports visuels non demandés.
+Exigences SVG : Le rendu doit être généré exclusivement en SVG vectoriel pur, mathématiquement exact, avec viewBox propre. Aucun format raster, aucun CSS externe.
+
+7️⃣ RÉFÉRENTIEL OBLIGATOIRE : QU'EST-CE QU'UNE SITUATION D'APPLICATION ?
+Elle se caractérise OBLIGATOIREMENT par :
+- L’application directe de procédures connues.
+- Une démarche et une mise en situation COURTE (3 à 7 phrases max), sans informations superflues ou "pièges".
+- Aucun choix stratégique complexe. Des actions directes pour répondre à la question.
+- Des blocs de données isolés et visuels.
+- Formulations de la question finale : "Représente...", "Complète...", "Trace...", "Place...". INTERDICTION d'utiliser "Calcule", "Détermine", "Trouve".
+
+8️⃣ ESTHÉTIQUE GÉNÉRALE ET DIRECTIVES VISUELLES
+1. Esthétique générale et directives visuelles :
+Style visuel : Épuré, très aéré et structuré, adapté pour des enfants du primaire (9-10 ans).
+Typographie (à spécifier) : Indique en note que le document final devra utiliser une police sans empattement, arrondie et lisible (type Comic Sans MS, Andika ou Century Gothic).
+Éléments graphiques : Utilise des citations (>) ou des blocs de code pour délimiter visuellement les encadrés d'identification et les tableaux.
+Illustrations : Place des balises explicites comme [Insérer ici un clipart simple en noir et blanc représentant...] pour indiquer où l'image thématique doit aller sans surcharger le texte. Le document final Situation d'application ne doit surtout pas avoir un texte qui possède un arrière plan coloré, mais tu peux intégrer de la couleur au besoin (lettre en couleur, zone de couleur, partie de tableau en couleur, supports visuels colorés).
+
+9️⃣ MÉTA-CONSIGNE DE STRUCTURE DE SORTIE ET WORD (OBLIGATOIRE)
+Le document final doit être strictement divisé en deux zones distinctes :
+
+ZONE 1 — TEXTE PÉDAGOGIQUE COPIABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Contenu exclusivement en TEXTE BRUT formatté basiquement (HTML de base).
+- Objectif : Copier-coller DIRECTEMENT dans Word sans perte.
+
+ZONE 2 — ÉLÉMENTS VISUELS STRUCTURÉS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- STRICTEMENT réservée aux éléments visuels (${visuelsTexte}).
+- Précédé de : [TITRE VISUEL] | [TYPE] | [OBJECTIF PÉDAGOGIQUE]
+
+⚠️ COMPATIBILITÉ WORD ABSOLUE :
+Pour les zones colorées, OBLIGATOIREMENT utiliser des TABLEAUX HTML (<table>) à une seule cellule.
+Exemple : <table style="width:100%; border-collapse: collapse;"><tr><td style="background-color: #F3E8FF; padding: 15px;"> CONTENU </td></tr></table>
+
+TON : Vocabulaire impérativement adapté à des élèves de ${anneeLabel}. Format de sortie complet : Fichier HTML autonome (<!DOCTYPE html>...).`;
+
+        document.getElementById('resultat-prompt').value = promptFinal;
+        document.getElementById('zone-resultat').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function copierPrompt() {
+        const text = document.getElementById('resultat-prompt').value;
+        if (!text) { alert("Générez d'abord la requête !"); return; }
+        
+        try {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopied();
+            }).catch(err => {
+                fallbackCopy(text);
+            });
+        } catch(e) {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopied();
+        } catch (err) {
+            console.error('Erreur lors de la copie de secours', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    function showCopied() {
+        const btn = document.querySelector('.btn-copy');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = "✓ Copié !";
+        setTimeout(() => btn.innerHTML = originalText, 2000);
+    }
+
+    function effacerChoix() {
+        if(confirm("Effacer tous les paramètres et remettre le générateur vierge ?")) {
+            // Réinitialise les sélecteurs
+            document.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+            
+            // Réinitialise les champs texte et cache les champs "Autre"
+            document.querySelectorAll('input[type="text"]').forEach(t => {
+                t.value = "";
+                if(t.id.includes('-autre')) t.classList.add('hidden');
+            });
+            
+            // Réinitialise de manière absolue TOUTES les cases à cocher du document
+            document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+            
+            // Masque la section de différenciation
+            toggleDiff();
+            
+            // Réinitialise spécifiquement la liste déroulante des années
+            const anneeSelect = document.getElementById('annee');
+            anneeSelect.innerHTML = '<option value="">-- Choisir d\'abord un cycle --</option>';
+            anneeSelect.disabled = true;
+            
+            // Masque tous les concepts dynamiques de la base de données
+            document.querySelectorAll('.concept-item').forEach(label => {
+                label.classList.remove('concept-blue', 'concept-bold', 'concept-faded');
+                label.classList.add('hidden');
+            });
+            document.querySelectorAll('.concept-category').forEach(cat => {
+                cat.style.display = 'none';
+            });
+            
+            // Vide complètement la zone de résultat (le prompt)
+            document.getElementById('resultat-prompt').value = "";
+            document.getElementById('legend-box').innerHTML = "<em>Veuillez sélectionner une année pour afficher la légende des couleurs.</em>";
+            
+            // Remonte en haut de la page pour une sensation de page neuve
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+</script>
+
+</body>
+</html>
