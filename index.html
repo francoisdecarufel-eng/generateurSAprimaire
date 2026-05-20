@@ -409,7 +409,13 @@
             <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Diagramme circulaire"> Diagramme circulaire</label>
             <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Dessins de polygones"> Dessins de polygones</label>
             <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Représentation des nombres (matériel)"> Matériel de manipulation</label>
-            <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Représentation de fractions"> Représentation de fractions</label>
+            <label class="concept-item-visual">
+                <input type="checkbox" name="visuel" value="Représentation de fractions" id="cb-fractions" onchange="toggleFractionsVierge()"> Représentation de fractions
+            </label>
+            <label class="concept-item-visual hidden" id="container-fractions-vierge" style="margin-left: 20px; border-left: 2px solid var(--primary); padding-left: 10px; width: 100%; grid-column: 1 / -1;">
+                <input type="checkbox" name="visuel" value="Représentation vierge de fractions afin que l'élève puisse manipuler (exemple : des portions de pizzas à colorier, des bandes fractionnées à colorier, des objets représentés à colorier)"> 
+                Représentation vierge de fractions (à manipuler/colorier)
+            </label>
             <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Tableau de données"> Tableau de données</label>
             <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Tableau de numération"> Tableau de numération</label>
             <label class="concept-item-visual"><input type="checkbox" name="visuel" value="Plan cartésien"> Plan cartésien</label>
@@ -454,6 +460,7 @@
         { cat: "A. ARITHMÉTIQUE - Nombres naturels", text: "Faire une approximation d’une collection (estimer) (1er, 2e et 3e cycles)", cycles: [1, 2, 3], finalYear: 5 },
         
         // --- Fractions ---
+        { cat: "A. ARITHMÉTIQUE - Fractions", text: "La fraction d’un ensemble : C’est le fait d’utiliser des fractions pour représenter des parties d’un groupe complet. On partage un ensemble (ex. 48 personnes) en parts égales et chaque fraction indique combien de personnes appartiennent à chaque catégorie. On peut ensuite trouver le nombre d’éléments dans chaque part et déterminer le reste.", cycles: [1, 2, 3], finalYear: 6 },
         { cat: "A. ARITHMÉTIQUE - Fractions", text: "Reconnaître des fractions provenant de la vie courante (2e cycle)", cycles: [2], finalYear: 3 },
         { cat: "A. ARITHMÉTIQUE - Fractions", text: "Représenter une fraction de différentes façons (partie d'un tout/collection) (2e et 3e cycles)", cycles: [2, 3], finalYear: 5 },
         { cat: "A. ARITHMÉTIQUE - Fractions", text: "Associer une fraction à une partie d’un tout ou d'une collection (2e cycle)", cycles: [2], finalYear: 4 },
@@ -606,6 +613,17 @@
             input.classList.remove('hidden');
         } else {
             input.classList.add('hidden');
+        }
+    }
+
+    function toggleFractionsVierge() {
+        const isChecked = document.getElementById('cb-fractions').checked;
+        const container = document.getElementById('container-fractions-vierge');
+        if(isChecked) {
+            container.classList.remove('hidden');
+        } else {
+            container.classList.add('hidden');
+            container.querySelector('input').checked = false;
         }
     }
 
@@ -816,7 +834,8 @@ ZONE 2 — ÉLÉMENTS VISUELS STRUCTURÉS
 Pour les zones colorées, OBLIGATOIREMENT utiliser des TABLEAUX HTML (<table>) à une seule cellule.
 Exemple : <table style="width:100%; border-collapse: collapse;"><tr><td style="background-color: #F3E8FF; padding: 15px;"> CONTENU </td></tr></table>
 
-TON : Vocabulaire impérativement adapté à des élèves de ${anneeLabel}. Format de sortie complet : Fichier HTML autonome (<!DOCTYPE html>...).`;
+TON : Vocabulaire impérativement adapté à des élèves de ${anneeLabel}. Format de sortie complet : Fichier HTML autonome (<!DOCTYPE html>...). 
+[CONSIGNE STRICTE] : La situation d'application doit apparaître en mode aperçu, et non en mode code.`;
 
         document.getElementById('resultat-prompt').value = promptFinal;
         document.getElementById('zone-resultat').scrollIntoView({ behavior: 'smooth' });
@@ -873,8 +892,9 @@ TON : Vocabulaire impérativement adapté à des élèves de ${anneeLabel}. Form
             // Réinitialise de manière absolue TOUTES les cases à cocher du document
             document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
             
-            // Masque la section de différenciation
+            // Masque les sections conditionnelles
             toggleDiff();
+            toggleFractionsVierge();
             
             // Réinitialise spécifiquement la liste déroulante des années
             const anneeSelect = document.getElementById('annee');
